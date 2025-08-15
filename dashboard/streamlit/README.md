@@ -2,6 +2,8 @@
 
 A beginner-friendly starter template for building Business Intelligence (BI) dashboards using Streamlit and Python. Perfect for hands-on learning and rapid prototyping of data visualization applications.
 
+![Thumbnail](./assets/top.gif)
+
 ## One-click deployment
 
 [![Deploy to Squadbase](https://app.squadbase.dev/button.svg)](https://app.squadbase.dev/new/clone?repository-url=https://github.com/squadbase/streamlit-claude-code-starter)

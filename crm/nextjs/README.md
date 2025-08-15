@@ -1,4 +1,4 @@
-<h1 align="center">Squadbase CRM</h1>
+<h1 align="center">Next.js 15 CRM Starter</h1>
 
 An open-source Customer Relationship Management (CRM) system designed for easy customization with Claude Code.
 
@@ -81,7 +81,3 @@ We have a [Roadmap](./docs/roadmap.md) for the future features. Feedback and fea
 - Deploy on [Squadbase](https://squadbase.dev/) for Authentication and Access Control.
 - Host PostgreSQL on [Neon](https://neon.com/) for easy deployment.
 - Build with [Claude Code](https://www.anthropic.com/claude-code) for AI-powered customization.
-
-## License
-
-This project is licensed under the Apache License 2.0 - see the LICENSE file for details.

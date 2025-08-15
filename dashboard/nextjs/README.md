@@ -2,6 +2,8 @@
 
 A modern dashboard starter template built with Next.js 15, TypeScript, and Tailwind CSS 4. Perfect for users new to Next.js who want to quickly build rich, interactive dashboards.
 
+![Thumbnail](./assets/top.gif)
+
 ## Features
 
 - **Next.js 15** with App Router
@@ -75,4 +77,4 @@ This template is optimized for pair programming with [Claude Code](https://claud
 
 Click the button to clone this repository and deploy it on Squadbase.
 
-[![Deploy to Squadbase](https://app.squadbase.dev/button.svg)](https://app.squadbase.dev/new/clone?repository-url=https://github.com/squadbase/nextjs-dashboard-starter.git)
+[![Deploy to Squadbase](https://app.squadbase.dev/button.svg)](https://app.squadbase.dev/new/clone?repository-url=https://github.com/squadbase/squadbase-starters/tree/main/dashboard/nextjs)
