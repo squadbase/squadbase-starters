@@ -17,7 +17,7 @@ Pairing them with an LLM lets you iterate quickly and shape your project to fit 
 ## Templates
 
 ### CRM
-- [Next.js](./crm//nextjs/)
+- [Next.js](./crm/nextjs/)
 
 ### Dashboard
 - [Next.js](./dashboard/nextjs/)
