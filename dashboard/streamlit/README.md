@@ -4,17 +4,19 @@ A beginner-friendly starter template for building Business Intelligence (BI) das
 
 ![Thumbnail](./assets/top.gif)
 
-## One-click deployment
+## Deploy
+
+Click the button to clone this repository and deploy it on Squadbase.
 
 [![Deploy to Squadbase](https://app.squadbase.dev/button.svg)](https://app.squadbase.dev/new/clone?repository-url=https://github.com/squadbase/streamlit-claude-code-starter)
 
-## What You'll Learn
+## Features
 
-- How to build interactive web dashboards with Streamlit
-- Data visualization and analysis with Python
-- Working with CSV data and Pandas
-- Creating multi-page applications
-- Using Claude Code for AI-assisted development
+- **Multi-page layout**: Organize your dashboard with Streamlit's pages feature.
+- **Sample datasets**: Includes example CSV files for quick prototyping.
+- **Ready for Squadbase**: Deploy with built-in authentication and access control.
+- **AI-Ready**: Designed for easy customization with Claude Code.
+
 
 ## Quick Start
 
@@ -69,73 +71,27 @@ streamlit-claude-code-starter/
 └── README.md           # This file
 ```
 
-## Sample Data
+## How to customize
 
-The `sample_data/` directory contains realistic e-commerce datasets for building your dashboard:
+1. **Edit the main app**: Open `app.py` to modify the dashboard layout, add or change widgets, and customize the sidebar using `st.sidebar` or display charts with `st.plotly_chart`.
 
-### Core Datasets
+2. **Add new pages**: For a multi-page app, create new Python files (e.g., `Analytics.py`) inside the `pages/` folder. Streamlit will automatically recognize each file as a separate page.
 
-- **`orders.csv`** (37,957 records): E-commerce order transactions from 2025
+3. **Replace sample data**: Swap out the CSV files in `sample_data/` with your own datasets, or add new ones. Load them in your app using `pd.read_csv()`.
 
-  - Fields: `order_id`, `user_id`, `status`, `gender`, `created_at`, `returned_at`, `shipped_at`, `delivered_at`, `num_of_item`
-  - Filtered to contain only 2025+ data for current analysis
+4. **Add custom visualizations and features**: Use `pandas` to manipulate your data, create charts with `plotly`, and display them using `st.plotly_chart()`. You can also add interactive UI elements like forms, buttons, or select boxes with Streamlit's built-in components.
 
-- **`users.csv`** (29,357 records): Customer profiles linked to the filtered orders
-  - Fields: `id`, `first_name`, `last_name`, `email`, `age`, `gender`, `state`, `street_address`, `postal_code`, `city`, `country`, `latitude`, `longitude`, `traffic_source`, `created_at`, `user_geom`
-  - Contains only users who have placed orders in the filtered dataset
+5. **Live coding with Claude Code**: This template is optimized for pair programming with [Claude Code](https://claude.ai/code). You can ask Claude Code to generate new Streamlit components, refactor data processing logic, or add visualizations. Work in small, focused increments and rerun the app to see changes instantly. For example, you can prompt:
+   - "Add a user upload widget and display a summary table."
+   - "Create a line chart showing monthly sales trends from `orders.csv`."
+   - "Refactor the sidebar to include a date range filter."
 
-### Supporting Data Files (in `local/` directory)
+## Stack
 
-- **`order_items.csv`** (55,150 records): Individual items within each order
-  - Fields: `id`, `order_id`, `user_id`, `product_id`, `inventory_item_id`, `status`, `created_at`, `shipped_at`, `delivered_at`, `returned_at`, `sale_price`
-- **`products.csv`** (24,640 records): Product catalog for items in the orders
-  - Fields: `id`, `cost`, `category`, `name`, `brand`, `retail_price`, `department`, `sku`, `distribution_center_id`
-
-All supporting datasets are filtered to only include data related to the current orders in `sample_data/`.
-
-### Date Format Standardization
-
-All date columns in the CSV files follow a consistent format:
-
-- **Format**: `YYYY-MM-DD HH:MM:SS` (ISO 8601 standard)
-- **Example**: `2025-07-04 15:33:00`
-- **Timezone**: All dates are normalized to remove timezone information for consistency
-
-Date columns include:
-
-- `created_at`: When the record was created
-- `shipped_at`: When the order was shipped
-- `delivered_at`: When the order was delivered
-- `returned_at`: When the order was returned
-
-A standardization script (`local/standardize_dates.py`) is available to ensure date format consistency across all CSV files.
-
-## Development with Claude Code
-
-This project is optimized for use with [Claude Code](https://claude.ai/code), an AI coding assistant:
-
-1. **Ask Claude to add features**: "Add a sales chart to the dashboard"
-2. **Request improvements**: "Make the data tables more interactive"
-3. **Get explanations**: "Explain how Streamlit caching works"
-4. **Debug issues**: "Why isn't my chart displaying?"
-
-### Example Prompts for Claude Code
-
-- "Add a sidebar filter for order status"
-- "Create a line chart showing orders over time"
-- "Add user authentication to the dashboard"
-- "Implement data export functionality"
-- "Add responsive design for mobile devices"
-
-## Customization Ideas
-
-Start with these beginner-friendly modifications:
-
-1. **Add Charts**: Create bar charts, line graphs, or pie charts
-2. **Implement Filters**: Add dropdown menus or sliders for data filtering
-3. **New Pages**: Create additional pages for different views
-4. **Styling**: Customize colors, fonts, and layout
-5. **Real Data**: Replace sample data with your own CSV files
+- **Streamlit** - Python-based data dashboard with sample datasets
+- **Pandas** - Data manipulation and analysis
+- **Plotly** - Data visualization
+- **Claude Code** - AI-assisted development
 
 ## Learning Resources
 
@@ -143,33 +99,3 @@ Start with these beginner-friendly modifications:
 - [Pandas Tutorial](https://pandas.pydata.org/docs/user_guide/10min.html)
 - [Plotly Documentation](https://plotly.com/python/)
 - [Claude Code Documentation](https://docs.anthropic.com/en/docs/claude-code)
-
-## Contributing
-
-This is a learning project! Feel free to:
-
-- Fork and experiment
-- Share your improvements
-- Ask questions in the issues
-- Submit pull requests with enhancements
-
-## Next Steps
-
-1. **Explore the code**: Start by understanding `app.py`
-2. **Make small changes**: Try modifying the title or adding a new metric
-3. **Add features**: Use Claude Code to help implement new functionality
-4. **Share your work**: Deploy your dashboard to Streamlit Cloud
-
-## License
-
-MIT License - feel free to use this for learning and commercial projects.
-
----
-
-**Happy Dashboard Building!**
-
-Start building your first BI dashboard today and see how AI-assisted development with Claude Code can accelerate your learning journey.
-
-**Deploy here!**
-
-[![Deploy to Squadbase](https://app.squadbase.dev/button.svg)](https://app.squadbase.dev/new/clone?repository-url=https://github.com/squadbase/streamlit-claude-code-starter)

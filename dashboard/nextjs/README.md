@@ -4,15 +4,11 @@ A modern dashboard starter template built with Next.js 15, TypeScript, and Tailw
 
 ![Thumbnail](./assets/top.gif)
 
-## Features
+## Deploy
 
-- **Next.js 15** with App Router
-- **TypeScript** with strict configuration
-- **Tailwind CSS 4** with dark mode support
-- **Turbopack** for fast development
-- **Geist fonts** optimized with `next/font`
-- **ESLint** with Next.js configuration
-- **Dashboard-ready** structure and components
+Click the button to clone this repository and deploy it on Squadbase.
+
+[![Deploy to Squadbase](https://app.squadbase.dev/button.svg)](https://app.squadbase.dev/new/clone?repository-url=https://github.com/squadbase/squadbase-starters/tree/main/dashboard/nextjs)
 
 ## Getting Started
 
@@ -31,14 +27,14 @@ npm run dev
 
 4. Open [http://localhost:3000](http://localhost:3000) to see your dashboard
 
-## Development Commands
+### Development Commands
 
 - `npm run dev` - Start development server with Turbopack
 - `npm run build` - Build for production
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
 
-## Project Structure
+### Project Structure
 
 ```
 ├── app/                 # Next.js App Router pages
@@ -51,14 +47,14 @@ npm run dev
 └── hooks/             # Custom React hooks
 ```
 
-## Building Your Dashboard
+## How to customize
 
 1. **Start with the homepage**: Modify `app/page.tsx` to create your main dashboard view
 2. **Add new pages**: Create folders in `/app` (e.g., `/app/analytics/page.tsx`)
 3. **Create components**: Add reusable components to `/components`
 4. **Style with Tailwind**: Use utility classes and dark mode variants
 
-## Live Coding with Claude Code
+### Live Coding with Claude Code
 
 This template is optimized for pair programming with [Claude Code](https://claude.ai/code):
 
@@ -67,14 +63,18 @@ This template is optimized for pair programming with [Claude Code](https://claud
 - Tailwind utilities for rapid styling
 - Hot reload for immediate feedback
 
+## Stack
+
+- **Next.js 15** with App Router
+- **TypeScript** with strict configuration
+- **Tailwind CSS 4** with dark mode support
+- **Turbopack** for fast development
+- **Geist fonts** optimized with `next/font`
+- **ESLint** with Next.js configuration
+- **Dashboard-ready** structure and components
+
 ## Learn More
 
 - [Next.js Documentation](https://nextjs.org/docs) - Learn about Next.js features and API
 - [Tailwind CSS](https://tailwindcss.com/docs) - Utility-first CSS framework
 - [TypeScript](https://www.typescriptlang.org/docs) - Typed JavaScript
-
-## Deploy on Squadbase
-
-Click the button to clone this repository and deploy it on Squadbase.
-
-[![Deploy to Squadbase](https://app.squadbase.dev/button.svg)](https://app.squadbase.dev/new/clone?repository-url=https://github.com/squadbase/squadbase-starters/tree/main/dashboard/nextjs)
