@@ -43,3 +43,6 @@ next-env.d.ts
 
 # Backlog.md
 backlog
+
+# Drizzle migrations
+drizzle/
