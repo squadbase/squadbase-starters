@@ -1,0 +1,52 @@
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
+import { ThreadProvider } from '@/contexts/thread-context';
+import { ProjectProvider } from '@/contexts/project-context';
+import { ProjectsProvider } from '@/contexts/projects-context';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import { ThreadSidebar } from '@/components/thread-sidebar';
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "AI Chat Starter",
+  description: "AI-powered chat application with project management",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <ProjectsProvider>
+          <ProjectProvider>
+            <ThreadProvider>
+              <SidebarProvider>
+                <div className="flex h-screen w-full">
+                  <ThreadSidebar />
+                  <SidebarInset className="flex-1">
+                    {children}
+                  </SidebarInset>
+                </div>
+              </SidebarProvider>
+            </ThreadProvider>
+          </ProjectProvider>
+        </ProjectsProvider>
+      </body>
+    </html>
+  );
+}
