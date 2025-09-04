@@ -1,14 +1,13 @@
 'use client';
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { useParams } from 'next/navigation';
 import type { Thread } from '@/src/db/schema';
 
 interface ThreadContextValue {
   threads: Thread[];
   currentThread: Thread | null;
   isLoading: boolean;
-  createNewThread: (title?: string) => Promise<Thread>;
+  createNewThread: (title?: string, projectId?: string) => Promise<Thread>;
   deleteThread: (threadId: string) => Promise<void>;
   refreshThreads: () => Promise<void>;
   selectThread: (threadId: string) => void;
@@ -19,21 +18,14 @@ interface ThreadContextValue {
 const ThreadContext = createContext<ThreadContextValue | undefined>(undefined);
 
 export function ThreadProvider({ children }: { children: React.ReactNode }) {
-  const params = useParams();
   const [threads, setThreads] = useState<Thread[]>([]);
   const [currentThread, setCurrentThread] = useState<Thread | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const projectId = Array.isArray(params.projectId) ? params.projectId[0] : params.projectId;
-
   const refreshThreads = useCallback(async () => {
     try {
-      let url = '/api/threads';
-      if (projectId) {
-        url = `/api/projects/${projectId}/threads`;
-      }
-      
-      const response = await fetch(url);
+      // Always fetch global threads, not project-scoped
+      const response = await fetch('/api/threads');
       if (response.ok) {
         const data = await response.json();
         setThreads(data);
@@ -43,15 +35,16 @@ export function ThreadProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, [projectId]);
+  }, []);
 
-  const createNewThread = useCallback(async (title: string = 'New Chat') => {
+  const createNewThread = useCallback(async (title: string = 'New Chat', targetProjectId?: string) => {
     try {
       let url = '/api/threads';
       let body: any = { title };
       
-      if (projectId) {
-        url = `/api/projects/${projectId}/threads`;
+      // Only use project URL if explicitly specified
+      if (targetProjectId) {
+        url = `/api/projects/${targetProjectId}/threads`;
       }
       
       const response = await fetch(url, {
@@ -70,7 +63,7 @@ export function ThreadProvider({ children }: { children: React.ReactNode }) {
       console.error('Failed to create thread:', error);
       throw error;
     }
-  }, [projectId]);
+  }, []);
 
   const deleteThread = useCallback(async (threadId: string) => {
     try {

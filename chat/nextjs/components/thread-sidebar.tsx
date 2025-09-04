@@ -17,6 +17,17 @@ import {
   SidebarMenuSubButton,
 } from "@/components/ui/sidebar";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -42,46 +53,94 @@ import { Textarea } from "@/components/ui/textarea";
 import { useThread } from "@/contexts/thread-context";
 import { useProjects } from "@/contexts/projects-context";
 import { useProject } from "@/contexts/project-context";
-import { MessageSquare, Plus, Trash2, Folder, FolderPlus, Settings } from "lucide-react";
+import {
+  MessageSquare,
+  Plus,
+  Trash2,
+  Folder,
+  FolderPlus,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import type { Thread } from "@/src/db/schema";
 
 export function ThreadSidebar() {
   const {
     threads,
     currentThread,
     createNewThread,
-    selectThread,
     deleteThread,
     isLoading,
   } = useThread();
-  
+
   const {
     projects,
     createProject,
-    deleteProject,
     isLoading: projectsLoading,
   } = useProjects();
-  
-  const { isInProject, currentProject } = useProject();
-  
+
+  const { currentProject } = useProject();
+
   const router = useRouter();
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectDescription, setNewProjectDescription] = useState("");
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
+  const [projectThreads, setProjectThreads] = useState<Record<string, Thread[]>>({});
+  const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
 
+  // Create thread without project (global)
   const handleNewThread = async () => {
     try {
       const thread = await createNewThread();
-      const href = isInProject 
-        ? `/projects/${currentProject?.id}/threads/${thread.id}`
-        : `/threads/${thread.id}`;
-      router.push(href);
+      router.push(`/threads/${thread.id}`);
     } catch (error) {
       console.error("Failed to create thread:", error);
     }
+  };
+
+  // Create thread in specific project
+  const handleNewThreadInProject = async (projectId: string) => {
+    try {
+      const thread = await createNewThread("New Chat", projectId);
+      router.push(`/projects/${projectId}/threads/${thread.id}`);
+    } catch (error) {
+      console.error("Failed to create thread:", error);
+    }
+  };
+
+  // Fetch threads for a specific project
+  const fetchProjectThreads = async (projectId: string) => {
+    try {
+      const response = await fetch(`/api/projects/${projectId}/threads`);
+      if (response.ok) {
+        const threads = await response.json();
+        setProjectThreads(prev => ({
+          ...prev,
+          [projectId]: threads.slice(0, 5) // Limit to 5 most recent
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to fetch project threads:", error);
+    }
+  };
+
+  // Toggle project expansion
+  const toggleProject = async (projectId: string) => {
+    const newExpandedProjects = new Set(expandedProjects);
+    if (newExpandedProjects.has(projectId)) {
+      newExpandedProjects.delete(projectId);
+    } else {
+      newExpandedProjects.add(projectId);
+      // Fetch threads when expanding if not already loaded
+      if (!projectThreads[projectId]) {
+        await fetchProjectThreads(projectId);
+      }
+    }
+    setExpandedProjects(newExpandedProjects);
   };
 
   const handleDeleteThread = async (e: React.MouseEvent, threadId: string) => {
@@ -95,9 +154,12 @@ export function ThreadSidebar() {
 
   const handleCreateProject = async () => {
     if (!newProjectName.trim()) return;
-    
+
     try {
-      const project = await createProject(newProjectName.trim(), newProjectDescription.trim() || undefined);
+      const project = await createProject(
+        newProjectName.trim(),
+        newProjectDescription.trim() || undefined
+      );
       setNewProjectName("");
       setNewProjectDescription("");
       setIsCreateProjectOpen(false);
@@ -107,19 +169,9 @@ export function ThreadSidebar() {
     }
   };
 
-  const handleDeleteProject = async (e: React.MouseEvent, projectId: string) => {
-    e.stopPropagation();
-    try {
-      await deleteProject(projectId);
-      router.push('/');
-    } catch (error) {
-      console.error("Failed to delete project:", error);
-    }
-  };
-
-  const getThreadHref = (threadId: string) => {
-    return isInProject 
-      ? `/projects/${currentProject?.id}/threads/${threadId}`
+  const getThreadHref = (threadId: string, projectId?: string) => {
+    return projectId
+      ? `/projects/${projectId}/threads/${threadId}`
       : `/threads/${threadId}`;
   };
 
@@ -127,12 +179,49 @@ export function ThreadSidebar() {
     <Sidebar>
       <SidebarHeader>
         <div className="space-y-2">
-          <Button onClick={handleNewThread} className="w-full" size="sm">
-            <Plus className="mr-2 h-4 w-4" />
-            {isInProject ? "New Chat" : "New Chat"}
-          </Button>
-          
-          <Dialog open={isCreateProjectOpen} onOpenChange={setIsCreateProjectOpen}>
+          <div className="divide-primary-foreground/30 inline-flex w-full divide-x rounded-md shadow-xs rtl:space-x-reverse">
+            <Button 
+              onClick={handleNewThread}
+              className="rounded-none shadow-none first:rounded-s-md last:rounded-e-md focus-visible:z-10 flex-1" 
+              size="sm"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              New Chat
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  className="rounded-none shadow-none first:rounded-s-md last:rounded-e-md focus-visible:z-10"
+                  size="sm"
+                  aria-label="Choose project"
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                {projects.length > 0 ? (
+                  projects.map((project) => (
+                    <DropdownMenuItem 
+                      key={project.id} 
+                      onClick={() => handleNewThreadInProject(project.id)}
+                    >
+                      <Folder className="mr-2 h-4 w-4" />
+                      {project.name}
+                    </DropdownMenuItem>
+                  ))
+                ) : (
+                  <div className="px-2 py-2 text-sm text-muted-foreground">
+                    No projects available
+                  </div>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <Dialog
+            open={isCreateProjectOpen}
+            onOpenChange={setIsCreateProjectOpen}
+          >
             <DialogTrigger asChild>
               <Button variant="outline" className="w-full" size="sm">
                 <FolderPlus className="mr-2 h-4 w-4" />
@@ -143,7 +232,8 @@ export function ThreadSidebar() {
               <DialogHeader>
                 <DialogTitle>Create New Project</DialogTitle>
                 <DialogDescription>
-                  Projects help you organize related conversations with custom context and instructions.
+                  Projects help you organize related conversations with custom
+                  context and instructions.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
@@ -168,13 +258,13 @@ export function ThreadSidebar() {
                 </div>
               </div>
               <DialogFooter>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setIsCreateProjectOpen(false)}
                 >
                   Cancel
                 </Button>
-                <Button 
+                <Button
                   onClick={handleCreateProject}
                   disabled={!newProjectName.trim()}
                 >
@@ -185,12 +275,15 @@ export function ThreadSidebar() {
           </Dialog>
         </div>
       </SidebarHeader>
-      
+
       <SidebarContent>
         {/* Projects Section */}
         <SidebarGroup>
           <SidebarGroupLabel>
-            <Link href="/projects" className="flex items-center gap-2 hover:underline">
+            <Link
+              href="/projects"
+              className="flex items-center gap-2 hover:underline"
+            >
               <Folder className="h-4 w-4" />
               Projects
             </Link>
@@ -207,48 +300,62 @@ export function ThreadSidebar() {
                 </div>
               ) : (
                 projects.map((project) => (
-                  <SidebarMenuItem key={project.id}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={currentProject?.id === project.id}
-                    >
-                      <Link href={`/projects/${project.id}`}>
-                        <Folder className="h-4 w-4" />
-                        <span className="truncate">{project.name}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                    <SidebarMenuAction showOnHover>
-                      <Link href={`/projects/${project.id}/settings`}>
-                        <Settings className="h-4 w-4" />
-                      </Link>
-                    </SidebarMenuAction>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
+                  <Collapsible
+                    key={project.id}
+                    open={expandedProjects.has(project.id)}
+                    onOpenChange={() => toggleProject(project.id)}
+                  >
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={currentProject?.id === project.id}
+                      >
+                        <Link href={`/projects/${project.id}`}>
+                          <Folder className="h-4 w-4" />
+                          <span className="truncate">{project.name}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                      <CollapsibleTrigger asChild>
                         <SidebarMenuAction showOnHover>
-                          <Trash2 className="h-4 w-4" />
+                          {expandedProjects.has(project.id) ? (
+                            <ChevronDown className="h-4 w-4" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4" />
+                          )}
                         </SidebarMenuAction>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Project</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete "{project.name}"? 
-                            This will permanently delete all conversations in this project. 
-                            This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={(e) => handleDeleteProject(e, project.id)}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          >
-                            Delete Project
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </SidebarMenuItem>
+                      </CollapsibleTrigger>
+                    </SidebarMenuItem>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {projectThreads[project.id]?.map((thread) => (
+                          <SidebarMenuSubItem key={thread.id}>
+                            <SidebarMenuSubButton
+                              asChild
+                              isActive={currentThread?.id === thread.id}
+                            >
+                              <Link href={getThreadHref(thread.id, project.id)}>
+                                <MessageSquare className="h-4 w-4" />
+                                <div className="flex-1 truncate">
+                                  <div className="truncate text-sm">{thread.title}</div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {formatDistanceToNow(
+                                      new Date(thread.lastMessageAt),
+                                      { addSuffix: true }
+                                    )}
+                                  </div>
+                                </div>
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                        {(!projectThreads[project.id] || projectThreads[project.id].length === 0) && (
+                          <div className="px-4 py-2 text-xs text-muted-foreground">
+                            No conversations yet
+                          </div>
+                        )}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </Collapsible>
                 ))
               )}
             </SidebarMenu>
@@ -258,7 +365,7 @@ export function ThreadSidebar() {
         {/* Current Threads Section */}
         <SidebarGroup>
           <SidebarGroupLabel>
-            {isInProject ? `${currentProject?.name} Conversations` : "All Conversations"}
+            All Conversations
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -299,10 +406,12 @@ export function ThreadSidebar() {
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Conversation</AlertDialogTitle>
+                          <AlertDialogTitle>
+                            Delete Conversation
+                          </AlertDialogTitle>
                           <AlertDialogDescription>
-                            Are you sure you want to delete "{thread.title}"? 
-                            This action cannot be undone.
+                            Are you sure you want to delete &quot;{thread.title}
+                            &quot;? This action cannot be undone.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
