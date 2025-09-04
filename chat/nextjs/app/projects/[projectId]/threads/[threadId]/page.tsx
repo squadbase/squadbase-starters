@@ -5,13 +5,20 @@ import { useParams } from "next/navigation";
 import { ThreadTitle } from "@/components/thread-title";
 import { ChatInterface } from "@/components/chat-interface";
 import { useThread } from "@/contexts/thread-context";
+import { useProject } from "@/contexts/project-context";
 import { Loader } from "@/components/ai-elements/loader";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import type { Thread } from "@/src/db/schema";
 
-export default function ThreadPage() {
-  const { id } = useParams();
-  const threadId = typeof id === "string" ? id : "";
+export default function ProjectThreadPage() {
+  const params = useParams();
+  const projectId = typeof params.projectId === "string" ? params.projectId : "";
+  const threadId = typeof params.threadId === "string" ? params.threadId : "";
+  
   const { getThreadById, selectThread, updateThreadInList } = useThread();
+  const { currentProject } = useProject();
   const [thread, setThread] = useState<Thread | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
 
@@ -65,7 +72,20 @@ export default function ThreadPage() {
   if (!thread) {
     return (
       <div className="container mx-auto p-6 h-dvh flex items-center justify-center">
-        <p className="text-muted-foreground">Thread not found</p>
+        <div className="text-center">
+          <p className="text-lg font-semibold mb-2">Thread not found</p>
+          <p className="text-muted-foreground mb-4">
+            The conversation you're looking for doesn't exist or has been deleted.
+          </p>
+          {currentProject && (
+            <Link href={`/projects/${projectId}`}>
+              <Button variant="outline">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to {currentProject.name}
+              </Button>
+            </Link>
+          )}
+        </div>
       </div>
     );
   }
@@ -73,7 +93,24 @@ export default function ThreadPage() {
   return (
     <div className="h-dvh flex flex-col">
       <div className="px-4 py-2 border-b flex-shrink-0">
-        <ThreadTitle threadId={thread.id} title={thread.title} />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            {currentProject && (
+              <Link href={`/projects/${projectId}`}>
+                <Button variant="ghost" size="sm">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  {currentProject.name}
+                </Button>
+              </Link>
+            )}
+            <ThreadTitle threadId={thread.id} title={thread.title} />
+          </div>
+          {currentProject?.instructions && (
+            <div className="text-xs text-muted-foreground">
+              Project Instructions Active
+            </div>
+          )}
+        </div>
       </div>
       <div className="flex-1 flex flex-col min-h-0">
         <ChatInterface threadId={thread.id} />

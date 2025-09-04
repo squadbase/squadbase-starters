@@ -3,11 +3,12 @@ import { threads, messages, type Thread, type NewThread } from '@/src/db/schema'
 import { eq, desc } from 'drizzle-orm';
 import { generateId } from 'ai';
 
-export async function createThread(title?: string): Promise<Thread> {
+export async function createThread(title?: string, projectId?: string): Promise<Thread> {
   const id = generateId();
   const newThread: NewThread = {
     id,
     title: title || 'New Chat',
+    projectId: projectId || null,
     createdAt: new Date(),
     updatedAt: new Date(),
     lastMessageAt: new Date(),

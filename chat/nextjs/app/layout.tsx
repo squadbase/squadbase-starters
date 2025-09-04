@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThreadProvider } from '@/contexts/thread-context';
+import { ProjectProvider } from '@/contexts/project-context';
+import { ProjectsProvider } from '@/contexts/projects-context';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { ThreadSidebar } from '@/components/thread-sidebar';
 
@@ -30,16 +32,20 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThreadProvider>
-          <SidebarProvider>
-            <div className="flex h-screen w-full">
-              <ThreadSidebar />
-              <SidebarInset className="flex-1">
-                {children}
-              </SidebarInset>
-            </div>
-          </SidebarProvider>
-        </ThreadProvider>
+        <ProjectsProvider>
+          <ProjectProvider>
+            <ThreadProvider>
+              <SidebarProvider>
+                <div className="flex h-screen w-full">
+                  <ThreadSidebar />
+                  <SidebarInset className="flex-1">
+                    {children}
+                  </SidebarInset>
+                </div>
+              </SidebarProvider>
+            </ThreadProvider>
+          </ProjectProvider>
+        </ProjectsProvider>
       </body>
     </html>
   );

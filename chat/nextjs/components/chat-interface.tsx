@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
+import { useProject } from "@/contexts/project-context";
 
 import {
   Conversation,
@@ -21,6 +22,7 @@ import {
   ReasoningTrigger,
   ReasoningContent,
 } from "@/components/ai-elements/reasoning";
+import { Response } from "@/components/ai-elements/response";
 import { Loader } from "@/components/ai-elements/loader";
 import { DateSeparator } from "@/components/date-separator";
 import { shouldShowDateSeparator, getMessageDate } from "@/lib/date-utils";
@@ -39,11 +41,15 @@ interface ChatInterfaceProps {
 export function ChatInterface({ threadId }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const [messageMetadata, setMessageMetadata] = useState<Record<string, { createdAt?: Date | string }>>({});
+  const { currentProject } = useProject();
 
   const { messages, sendMessage, status, setMessages } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/chat",
-      body: { threadId },
+      body: { 
+        threadId,
+        projectId: currentProject?.id || null
+      },
     }),
   });
 
@@ -70,8 +76,8 @@ export function ChatInterface({ threadId }: ChatInterfaceProps) {
   }, [threadId, setMessages]);
 
   return (
-    <>
-      <Conversation className="flex-1">
+    <div className="flex flex-col h-full">
+      <Conversation className="flex-1 min-h-0">
         <ConversationContent>
           {messages.map((m, index) => {
             const currentMetadata = messageMetadata[m.id] || {};
@@ -87,8 +93,12 @@ export function ChatInterface({ threadId }: ChatInterfaceProps) {
                 <Message from={m.role}>
                   <MessageContent>
                     {m.parts.map((part, i) => {
-                      if (part.type === "text")
+                      if (part.type === "text") {
+                        if (m.role === "assistant") {
+                          return <Response key={i}>{part.text}</Response>;
+                        }
                         return <span key={i}>{part.text}</span>;
+                      }
                       if (part.type === "reasoning")
                         return (
                           <Reasoning key={i} isStreaming={status === "streaming"}>
@@ -108,33 +118,37 @@ export function ChatInterface({ threadId }: ChatInterfaceProps) {
         <ConversationScrollButton />
       </Conversation>
 
-      <PromptInput
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (input.trim()) {
-            const messageText = input;
-            const tempId = `temp-${Date.now()}`;
-            
-            // Store metadata for the new message
-            setMessageMetadata(prev => ({
-              ...prev,
-              [tempId]: { createdAt: new Date() }
-            }));
-            
-            sendMessage({ text: messageText });
-            setInput("");
-          }
-        }}
-      >
-        <PromptInputTextarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-        />
-        <PromptInputToolbar>
-          <div className="flex-1"></div>
-          <PromptInputSubmit disabled={!input} status={status} />
-        </PromptInputToolbar>
-      </PromptInput>
-    </>
+      <div className="flex-shrink-0 p-4 border-t bg-background">
+        <PromptInput
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (input.trim()) {
+              const messageText = input;
+              const tempId = `temp-${Date.now()}`;
+              
+              // Store metadata for the new message
+              setMessageMetadata(prev => ({
+                ...prev,
+                [tempId]: { createdAt: new Date() }
+              }));
+              
+              sendMessage({ text: messageText });
+              setInput("");
+            }
+          }}
+        >
+          <PromptInputTextarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="What would you like to know?"
+            className="min-h-[60px] max-h-[200px]"
+          />
+          <PromptInputToolbar>
+            <div className="flex-1"></div>
+            <PromptInputSubmit disabled={!input} status={status} />
+          </PromptInputToolbar>
+        </PromptInput>
+      </div>
+    </div>
   );
 }
