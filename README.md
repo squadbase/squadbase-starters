@@ -16,6 +16,9 @@ Pairing them with an LLM lets you iterate quickly and shape your project to fit 
 
 ## Templates
 
+### Chat
+- [Next.js](./chat/nextjs/)
+
 ### CRM
 - [Next.js](./crm/nextjs/)
 
