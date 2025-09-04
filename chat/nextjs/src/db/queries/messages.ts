@@ -62,7 +62,7 @@ export async function saveUIMessages(
 
 export async function convertToUIMessages(dbMessages: Message[]): Promise<UIMessage[]> {
   return dbMessages.map((msg) => ({
-    id: msg.id,
+    id: msg.id || generateId(), // Generate ID if empty
     role: msg.role as UIMessage['role'],
     parts: [{ type: 'text', text: msg.content }],
     createdAt: msg.createdAt,
