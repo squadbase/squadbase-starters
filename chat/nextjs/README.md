@@ -19,13 +19,25 @@ Click the button to clone this repository and deploy it on Squadbase.
 npm install
 ```
 
-3. Run the development server:
+3. Set up the database:
+   - Create a PostgreSQL database (we recommend [Neon](https://neon.tech) for serverless Postgres)
+   - Copy your database connection string to `.env.local`:
+   ```
+   DATABASE_URL=postgresql://user:password@ep-hostname.region.aws.neon.tech/neondb?sslmode=require
+   ```
+   - Generate and apply database migrations:
+   ```bash
+   npx drizzle-kit generate
+   npx drizzle-kit migrate
+   ```
+
+4. Run the development server:
 
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) to start chatting
+5. Open [http://localhost:3000](http://localhost:3000) to start chatting
 
 ### Development Commands
 
@@ -33,6 +45,13 @@ npm run dev
 - `npm run build` - Build for production
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
+
+### Database Commands (Drizzle ORM)
+
+- `npx drizzle-kit generate` - Generate migration files from schema changes
+- `npx drizzle-kit migrate` - Apply pending migrations to database
+- `npx drizzle-kit push` - Push schema changes directly (development only)
+- `npx drizzle-kit studio` - Open Drizzle Studio for database management
 
 ### Project Structure
 
